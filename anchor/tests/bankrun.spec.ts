@@ -1,6 +1,6 @@
 import * as anchor from '@coral-xyz/anchor'
 import { Keypair, PublicKey } from '@solana/web3.js'
-import { BanksClient, ProgramTestContext, startAnchor } from 'solana-bankrun'
+import { BanksClient, Clock, ProgramTestContext, startAnchor } from 'solana-bankrun'
 import  IDL  from '../target/idl/vesting.json'
 import { SYSTEM_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/native/system';
 import { BankrunProvider } from 'anchor-bankrun';
@@ -9,6 +9,7 @@ import { Vesting } from '../target/types/vesting';
 import { createMint, mintTo } from 'spl-token-bankrun';
 import NodeWallet from '@coral-xyz/anchor/dist/cjs/nodewallet';
 import { TOKEN_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/utils/token';
+import { BN } from 'bn.js';
 
 
 describe("Vesting Smart Contract Tests", () => {
@@ -108,6 +109,32 @@ describe("Vesting Smart Contract Tests", () => {
     });
 
     it("create an employee vesting account", async () => {
-        const tx2
-    })
+        const tx2 = await program.methods
+        .createEmployeeVesting( new BN(0), new BN(100), new BN(100), new BN(0))
+        .accounts({
+            beneficiary: beneficiary.publicKey,
+            vestingAccount: vestingAccountKey,
+        }).rpc( { commitment: 'confirmed', skipPreflight: true });
+
+        console.log("Create Employee Account Tx: ", tx2);
+        console.log("Employee Account:", employeeAccount.toBase58());
+    });
+
+    it("should claim the employee's vested tokens", async() => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const currentClock = await banksClient.getClock();
+        context.setClock(
+            new Clock(
+                currentClock.slot,
+                currentClock.epochStartTimestamp,
+                currentClock.epoch,
+                currentClock.leaderScheduleEpoch,
+                1000n
+            )
+        );
+    
+    const tx3 = await program2.methods.claimToken(companyName).accounts({tokenProgram: TOKEN_PROGRAM_ID}).rpc({commitment: 'confirmed'});
+    
+    console.log('Claim Tokens Tx: ', tx3);
+    });
 });
