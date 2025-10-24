@@ -6,7 +6,7 @@ import { SYSTEM_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/native/system';
 import { BankrunProvider } from 'anchor-bankrun';
 import { Program } from '@coral-xyz/anchor';
 import { Vesting } from '../target/types/vesting';
-import { createMint } from 'spl-token-bankrun';
+import { createMint, mintTo } from 'spl-token-bankrun';
 import NodeWallet from '@coral-xyz/anchor/dist/cjs/nodewallet';
 import { TOKEN_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/utils/token';
 
@@ -93,5 +93,21 @@ describe("Vesting Smart Contract Tests", () => {
         console.log("Create Vesting Account: ", tx);
     });
 
-    
+    it("should fund the treasury token account", async () => {
+        const amount  = 10_000 * 10 ** 9; 
+        const mintTx = await mintTo(
+            // @ts-ignore-error - Type error in spl-token-bankrun dependency
+            banksClient,
+            employer,
+            mint,
+            treasuryTokenAccount,
+            employer,
+            amount
+        );
+        console.log("Mint Treasury Token Account:", mintTx);
+    });
+
+    it("create an employee vesting account", async () => {
+        const tx2
+    })
 });
