@@ -8,6 +8,7 @@ import { Program } from '@coral-xyz/anchor';
 import { Vesting } from '../target/types/vesting';
 import { createMint } from 'spl-token-bankrun';
 import NodeWallet from '@coral-xyz/anchor/dist/cjs/nodewallet';
+import { TOKEN_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/utils/token';
 
 
 describe("Vesting Smart Contract Tests", () => {
@@ -22,7 +23,8 @@ describe("Vesting Smart Contract Tests", () => {
     let beneficiaryProvider: BankrunProvider;
     let program2: Program<Vesting>;
     let vestingAccountKey: PublicKey;
-    
+    let treasuryTokenAccount: PublicKey;
+    let employeeAccount: PublicKey;
     
     beforeAll(async () => {
         beneficiary = new anchor.web3.Keypair();
@@ -65,9 +67,31 @@ describe("Vesting Smart Contract Tests", () => {
             program.programId
         );
 
-        [treasuryTokenAccount] PublicKey.findProgramAddressSync(
+        [treasuryTokenAccount] = PublicKey.findProgramAddressSync(
             [Buffer.from("vesting_treasury"), Buffer.from(companyName)],
             program.programId
         );
+
+        [employeeAccount] = PublicKey.findProgramAddressSync([
+                    Buffer.from("employee_vesting"),
+                    beneficiary.publicKey.toBuffer(),
+                    vestingAccountKey.toBuffer(),
+                ],
+            program.programId
+        );
     });
+
+    it("should create a vesting account", async () => {
+        const tx = await program.methods.createVestingAccount(companyName).accounts({
+            signer: employer.publicKey,
+            mint,
+            tokenProgram: TOKEN_PROGRAM_ID,
+        }).rpc( {commitment: 'confirmed'} );
+            const vestingAccountData = await program.account.vestingAccount.fetch(vestingAccountKey, "confirmed");
+
+        console.log("Vesting Account Data: ", vestingAccountData, null, 2);
+        console.log("Create Vesting Account: ", tx);
+    });
+
+    
 });
