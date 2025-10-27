@@ -1,22 +1,22 @@
 // Here we export some useful types and functions for interacting with the Anchor program.
 import { AnchorProvider, Program } from '@coral-xyz/anchor'
 import { Cluster, PublicKey } from '@solana/web3.js'
-import CounterIDL from '../target/idl/counter.json'
-import type { Counter } from '../target/types/counter'
+import VestingIDL from '../target/idl/vesting.json'
+import type { Vesting } from '../target/types/vesting'
 
 // Re-export the generated IDL and type
-export { Counter, CounterIDL }
+export { Vesting, VestingIDL }
 
 // The programId is imported from the program IDL.
-export const COUNTER_PROGRAM_ID = new PublicKey(CounterIDL.address)
+export const VESTING_PROGRAM_ID = new PublicKey(VestingIDL.address)
 
 // This is a helper function to get the Counter Anchor program.
-export function getCounterProgram(provider: AnchorProvider, address?: PublicKey): Program<Counter> {
-  return new Program({ ...CounterIDL, address: address ? address.toBase58() : CounterIDL.address } as Counter, provider)
+export function getVestingProgram(provider: AnchorProvider, address?: PublicKey): Program<Vesting> {
+  return new Program({ ...VestingIDL, address: address ? address.toBase58() : VestingIDL.address } as Vesting, provider)
 }
 
 // This is a helper function to get the program ID for the Counter program depending on the cluster.
-export function getCounterProgramId(cluster: Cluster) {
+export function getVestingProgramId(cluster: Cluster) {
   switch (cluster) {
     case 'devnet':
     case 'testnet':
@@ -24,6 +24,6 @@ export function getCounterProgramId(cluster: Cluster) {
       return new PublicKey('Count3AcZucFDPSFBAeHkQ6AvttieKUkyJ8HiQGhQwe')
     case 'mainnet-beta':
     default:
-      return COUNTER_PROGRAM_ID
+      return VESTING_PROGRAM_ID
   }
 }
